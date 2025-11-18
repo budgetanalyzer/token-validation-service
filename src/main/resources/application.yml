@@ -1,0 +1,38 @@
+server:
+  port: 8088
+
+logging:
+  level:
+    root: WARN
+    org.budgetanalyzer: TRACE
+    org.springframework.security: DEBUG
+
+spring:
+  application:
+    name: token-validation-service
+
+  # OAuth2 Resource Server configuration for JWT validation
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          # Auth0 issuer URI (abstracted through NGINX /auth/.well-known/openid-configuration)
+          # In production, this will point to NGINX gateway
+          # In development, can point directly to Auth0 or through NGINX
+          issuer-uri: ${AUTH0_ISSUER_URI:https://dev-gcz1r8453xzz0317.us.auth0.com/}
+
+# Custom configuration for audience validation
+auth0:
+  audience: ${AUTH0_AUDIENCE:https://api.budgetanalyzer.org}
+
+# Actuator configuration
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: always
+      probes:
+        enabled: true

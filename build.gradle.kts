@@ -1,0 +1,79 @@
+import org.springframework.boot.gradle.tasks.run.BootRun
+
+plugins {
+    java
+    checkstyle
+    alias(libs.plugins.spring.boot)
+    alias(libs.plugins.spring.dependency.management)
+    alias(libs.plugins.spotless)
+}
+
+group = "org.budgetanalyzer"
+version = "0.0.1-SNAPSHOT"
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(libs.versions.java.get().toInt())
+    }
+}
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+}
+
+dependencies {
+    // Spring Boot Web
+    implementation(libs.spring.boot.starter.web)
+
+    // OAuth2 Resource Server for JWT validation
+    implementation(libs.spring.boot.starter.oauth2.resource.server)
+
+    // Actuator for health checks
+    implementation(libs.spring.boot.starter.actuator)
+
+    // Test dependencies
+    testImplementation(libs.spring.boot.starter.test)
+    testRuntimeOnly(libs.junit.platform.launcher)
+}
+
+spotless {
+    java {
+        googleJavaFormat(libs.versions.googleJavaFormat.get())
+        trimTrailingWhitespace()
+        endWithNewline()
+        importOrder("java", "javax", "jakarta", "org", "com", "", "org.budgetanalyzer")
+        removeUnusedImports()
+    }
+}
+
+checkstyle {
+    toolVersion = libs.versions.checkstyle.get()
+}
+
+tasks.named("check") {
+    dependsOn("spotlessCheck")
+}
+
+val jvmArgsList = listOf(
+    "--add-opens=java.base/java.nio=ALL-UNNAMED",
+    "--add-opens=java.base/sun.nio.ch=ALL-UNNAMED",
+    "--enable-native-access=ALL-UNNAMED"
+)
+
+tasks.withType<BootRun> {
+    jvmArgs = jvmArgsList
+}
+
+tasks.withType<Test> {
+    useJUnitPlatform()
+    jvmArgs = jvmArgsList
+}
+
+tasks.withType<Javadoc> {
+    options {
+        (this as StandardJavadocDocletOptions).apply {
+            addStringOption("Xdoclint:none", "-quiet")
+        }
+    }
+}
