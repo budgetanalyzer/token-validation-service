@@ -165,17 +165,17 @@ src/main/java/org/budgetanalyzer/tokenvalidation/
 │   └── AuthValidationController.java       # /auth/validate endpoint
 └── config/
     ├── SecurityConfig.java                 # OAuth2 Resource Server setup
-    ├── AudienceValidator.java              # Custom audience validation
-    ├── RequestLoggingFilter.java           # Request logging
-    └── GlobalExceptionHandler.java         # Exception handling
+    └── AudienceValidator.java              # Custom audience validation
 ```
 
 **Key Classes**:
 - **AuthValidationController**: Main validation endpoint
 - **SecurityConfig**: JWT decoder configuration, security filter chain
 - **AudienceValidator**: Validates audience claim against expected value
-- **RequestLoggingFilter**: Logs incoming validation requests for debugging
-- **GlobalExceptionHandler**: Handles exceptions and returns proper HTTP responses
+
+**Shared Components from service-common**:
+- **HttpLoggingFilter**: Logs incoming validation requests for debugging
+- **DefaultApiExceptionHandler**: Handles exceptions and returns proper HTTP responses (404, 400, 500)
 
 ## Development Workflow
 
