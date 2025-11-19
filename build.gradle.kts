@@ -23,6 +23,10 @@ repositories {
 }
 
 dependencies {
+    // Service-web provides: web, data-jpa, springdoc, jackson, slf4j, opencsv, actuator
+    // Plus: exception handling, HTTP logging, OpenAPI config
+    implementation(libs.service.web)
+
     // Spring Boot Web
     implementation(libs.spring.boot.starter.web)
 

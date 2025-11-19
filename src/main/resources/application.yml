@@ -11,6 +11,15 @@ spring:
   application:
     name: token-validation-service
 
+  # Exclude service-web components not needed for token validation
+  autoconfigure:
+    exclude:
+      # We have our own OAuth2 security config with custom /auth/validate endpoint
+      - org.budgetanalyzer.service.security.OAuth2ResourceServerSecurityConfig
+      # Token validation service doesn't need a database
+      - org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
+      - org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration
+
   # OAuth2 Resource Server configuration for JWT validation
   security:
     oauth2:
@@ -36,3 +45,14 @@ management:
       show-details: always
       probes:
         enabled: true
+
+# Service-web HTTP logging configuration
+budgetanalyzer:
+  service:
+    http-logging:
+      enabled: true
+      log-level: DEBUG
+      include-request-body: false  # No request bodies for validation service
+      include-response-body: false # No response bodies needed
+      exclude-patterns:
+        - /actuator/**  # Don't log health checks
