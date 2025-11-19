@@ -149,7 +149,7 @@ curl http://localhost:8090/auth/validate
 ### Code Formatting
 
 ```bash
-./gradlew spotlessApply
+./gradlew clean spotlessApply
 ```
 
 ## References
