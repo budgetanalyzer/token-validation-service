@@ -10,8 +10,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.oauth2.core.DelegatingOAuth2TokenValidator;
-import org.springframework.security.oauth2.core.OAuth2TokenValidator;
-import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtValidators;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
@@ -66,12 +64,14 @@ public class SecurityConfig {
                               "Authorization header present: {}",
                               request.getHeader("Authorization") != null);
                           if (request.getHeader("Authorization") != null) {
-                            String authHeader = request.getHeader("Authorization");
+                            var authHeader = request.getHeader("Authorization");
+
                             logger.error(
                                 "Authorization header starts with Bearer: {}",
                                 authHeader.startsWith("Bearer "));
                             if (authHeader.startsWith("Bearer ")) {
-                              String token = authHeader.substring(7);
+                              var token = authHeader.substring(7);
+
                               logger.error("Token length: {}", token.length());
                               // Log first 50 chars of token for debugging
                               logger.error(
@@ -116,9 +116,11 @@ public class SecurityConfig {
       // Create decoder with support for "at+jwt" token type (OAuth 2.0 RFC 9068)
       // and PS256 algorithm (Auth0 uses PS256 for access tokens)
       // Remove trailing slash from issuer URI if present to avoid double slashes
-      String baseUri = issuerUri.endsWith("/") ? issuerUri.substring(0, issuerUri.length() - 1) : issuerUri;
-      String jwksUri = baseUri + "/.well-known/jwks.json";
-      NimbusJwtDecoder jwtDecoder =
+      var baseUri =
+          issuerUri.endsWith("/") ? issuerUri.substring(0, issuerUri.length() - 1) : issuerUri;
+      var jwksUri = baseUri + "/.well-known/jwks.json";
+
+      var jwtDecoder =
           NimbusJwtDecoder.withJwkSetUri(jwksUri)
               .jwsAlgorithm(org.springframework.security.oauth2.jose.jws.SignatureAlgorithm.RS256)
               .jwsAlgorithm(org.springframework.security.oauth2.jose.jws.SignatureAlgorithm.PS256)
@@ -133,10 +135,9 @@ public class SecurityConfig {
       logger.info("JWT decoder configured to accept token types: JWT, at+jwt");
 
       // Configure validators: issuer + audience
-      OAuth2TokenValidator<Jwt> audienceValidator = new AudienceValidator(List.of(audience));
-      OAuth2TokenValidator<Jwt> withIssuer = JwtValidators.createDefaultWithIssuer(issuerUri);
-      OAuth2TokenValidator<Jwt> withAudience =
-          new DelegatingOAuth2TokenValidator<>(withIssuer, audienceValidator);
+      var audienceValidator = new AudienceValidator(List.of(audience));
+      var withIssuer = JwtValidators.createDefaultWithIssuer(issuerUri);
+      var withAudience = new DelegatingOAuth2TokenValidator<>(withIssuer, audienceValidator);
 
       jwtDecoder.setJwtValidator(
           token -> {

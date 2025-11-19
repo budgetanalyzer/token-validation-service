@@ -20,9 +20,7 @@ public class GlobalExceptionHandler {
 
   private static final Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
-  /**
-   * Catch 404 errors (endpoint not found).
-   */
+  /** Catch 404 errors (endpoint not found). */
   @ExceptionHandler(NoHandlerFoundException.class)
   @ResponseStatus(HttpStatus.NOT_FOUND)
   public ResponseEntity<String> handleNotFound(NoHandlerFoundException ex) {
@@ -33,12 +31,11 @@ public class GlobalExceptionHandler {
     logger.error("HTTP Method: {}", ex.getHttpMethod());
     logger.error("Handler not found");
     logger.error("========================================");
+
     return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not Found");
   }
 
-  /**
-   * Catch ALL other exceptions.
-   */
+  /** Catch ALL other exceptions. */
   @ExceptionHandler(Exception.class)
   public ResponseEntity<String> handleAllExceptions(Exception ex) {
     logger.error("========================================");
@@ -50,13 +47,10 @@ public class GlobalExceptionHandler {
     logger.error("========================================");
 
     // Return 500 for most errors
-    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-        .body("Internal Server Error");
+    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Internal Server Error");
   }
 
-  /**
-   * Catch IllegalArgumentException (which might cause 400 errors).
-   */
+  /** Catch IllegalArgumentException (which might cause 400 errors). */
   @ExceptionHandler(IllegalArgumentException.class)
   @ResponseStatus(HttpStatus.BAD_REQUEST)
   public ResponseEntity<String> handleIllegalArgument(IllegalArgumentException ex) {
@@ -66,6 +60,7 @@ public class GlobalExceptionHandler {
     logger.error("Exception Message: {}", ex.getMessage());
     logger.error("Stack Trace:", ex);
     logger.error("========================================");
+
     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Bad Request");
   }
 }

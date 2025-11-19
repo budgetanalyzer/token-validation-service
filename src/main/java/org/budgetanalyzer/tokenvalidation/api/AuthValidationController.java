@@ -40,16 +40,16 @@ public class AuthValidationController {
   @GetMapping("/validate")
   public ResponseEntity<Void> validate(Authentication authentication, HttpServletRequest request) {
     // Log incoming validation request
-    String clientIp = request.getRemoteAddr();
-    String forwardedFor = request.getHeader("X-Forwarded-For");
-    String authHeader = request.getHeader("Authorization");
-    String originalUri = request.getHeader("X-Original-URI");
+    var clientIp = request.getRemoteAddr();
+    var forwardedFor = request.getHeader("X-Forwarded-For");
+    var authHeader = request.getHeader("Authorization");
+    var originalUri = request.getHeader("X-Original-URI");
 
-    logger.info("=== Token Validation Request ===");
-    logger.info("Client IP: {}", clientIp);
-    logger.info("X-Forwarded-For: {}", forwardedFor != null ? forwardedFor : "none");
-    logger.info("X-Original-URI: {}", originalUri != null ? originalUri : "none");
-    logger.info("Authorization header present: {}", authHeader != null);
+    logger.debug("=== Token Validation Request ===");
+    logger.debug("Client IP: {}", clientIp);
+    logger.debug("X-Forwarded-For: {}", forwardedFor != null ? forwardedFor : "none");
+    logger.debug("X-Original-URI: {}", originalUri != null ? originalUri : "none");
+    logger.debug("Authorization header present: {}", authHeader != null);
 
     // If we reach here, Spring Security has already validated:
     // 1. JWT signature (using Auth0 public keys)
@@ -59,23 +59,22 @@ public class AuthValidationController {
 
     // Extract user ID from JWT (sub claim) and return in response header
     if (authentication.getPrincipal() instanceof Jwt jwt) {
-      String userId = jwt.getSubject();
-      String email = jwt.getClaim("email");
+      var userId = jwt.getSubject();
+      var email = jwt.getClaim("email");
 
-      logger.info("JWT VALID - User: {} ({})", userId, email != null ? email : "no email");
-      logger.info("Token expires: {}", jwt.getExpiresAt());
-      logger.info("Setting X-JWT-User-Id header: {}", userId);
-      logger.info("=== Validation Result: SUCCESS ===");
+      logger.debug("JWT VALID - User: {} ({})", userId, email != null ? email : "no email");
+      logger.debug("Token expires: {}", jwt.getExpiresAt());
+      logger.debug("Setting X-JWT-User-Id header: {}", userId);
+      logger.debug("=== Validation Result: SUCCESS ===");
 
       // Return 200 OK with X-JWT-User-Id header for NGINX auth_request_set
-      return ResponseEntity.ok()
-          .header("X-JWT-User-Id", userId)
-          .build();
+      return ResponseEntity.ok().header("X-JWT-User-Id", userId).build();
     }
 
     // Fallback (should never reach here if JWT is valid)
     logger.warn("JWT validated but principal is not a Jwt object");
-    logger.info("=== Validation Result: SUCCESS (no user ID) ===");
+    logger.debug("=== Validation Result: SUCCESS (no user ID) ===");
+
     return ResponseEntity.ok().build();
   }
 }

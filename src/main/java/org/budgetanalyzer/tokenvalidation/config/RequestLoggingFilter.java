@@ -1,5 +1,8 @@
 package org.budgetanalyzer.tokenvalidation.config;
 
+import java.io.IOException;
+import java.util.Collections;
+
 import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -7,9 +10,7 @@ import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.util.Collections;
-import java.util.Enumeration;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -32,47 +33,50 @@ public class RequestLoggingFilter implements Filter {
         && response instanceof HttpServletResponse httpResponse) {
 
       // Log EVERY incoming request
-      logger.info("========================================");
-      logger.info("INCOMING REQUEST TO TOKEN VALIDATION SERVICE");
-      logger.info("========================================");
-      logger.info("Method: {}", httpRequest.getMethod());
-      logger.info("URI: {}", httpRequest.getRequestURI());
-      logger.info("Query String: {}", httpRequest.getQueryString());
-      logger.info("Remote Addr: {}", httpRequest.getRemoteAddr());
-      logger.info("Remote Host: {}", httpRequest.getRemoteHost());
-      logger.info("Remote Port: {}", httpRequest.getRemotePort());
+      logger.debug("========================================");
+      logger.debug("INCOMING REQUEST TO TOKEN VALIDATION SERVICE");
+      logger.debug("========================================");
+      logger.debug("Method: {}", httpRequest.getMethod());
+      logger.debug("URI: {}", httpRequest.getRequestURI());
+      logger.debug("Query String: {}", httpRequest.getQueryString());
+      logger.debug("Remote Addr: {}", httpRequest.getRemoteAddr());
+      logger.debug("Remote Host: {}", httpRequest.getRemoteHost());
+      logger.debug("Remote Port: {}", httpRequest.getRemotePort());
 
       // Log ALL headers
-      logger.info("--- Headers ---");
-      Enumeration<String> headerNames = httpRequest.getHeaderNames();
+      logger.debug("--- Headers ---");
+      var headerNames = httpRequest.getHeaderNames();
+
       if (headerNames != null) {
         for (String headerName : Collections.list(headerNames)) {
-          String headerValue = httpRequest.getHeader(headerName);
+          var headerValue = httpRequest.getHeader(headerName);
           // Truncate Authorization header for security, but show if it exists
           if ("Authorization".equalsIgnoreCase(headerName) && headerValue != null) {
             if (headerValue.startsWith("Bearer ")) {
-              logger.info("  {}: Bearer <token-length: {} chars>", headerName,
-                  headerValue.length() - 7);
+              logger.debug(
+                  "  {}: Bearer <token-length: {} chars>", headerName, headerValue.length() - 7);
             } else {
-              logger.info("  {}: <present but not Bearer, length: {} chars>", headerName,
+              logger.debug(
+                  "  {}: <present but not Bearer, length: {} chars>",
+                  headerName,
                   headerValue.length());
             }
           } else {
-            logger.info("  {}: {}", headerName, headerValue);
+            logger.debug("  {}: {}", headerName, headerValue);
           }
         }
       } else {
-        logger.info("  (no headers)");
+        logger.debug("  (no headers)");
       }
 
-      logger.info("========================================");
+      logger.debug("========================================");
 
       // Continue the filter chain
       chain.doFilter(request, response);
 
       // Log the response status
-      logger.info("RESPONSE STATUS: {}", httpResponse.getStatus());
-      logger.info("========================================");
+      logger.debug("RESPONSE STATUS: {}", httpResponse.getStatus());
+      logger.debug("========================================");
 
     } else {
       // Not an HTTP request/response, just continue

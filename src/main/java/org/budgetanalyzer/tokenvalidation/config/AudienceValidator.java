@@ -23,7 +23,7 @@ public class AudienceValidator implements OAuth2TokenValidator<Jwt> {
 
   @Override
   public OAuth2TokenValidatorResult validate(Jwt jwt) {
-    List<String> tokenAudiences = jwt.getAudience();
+    var tokenAudiences = jwt.getAudience();
 
     // Check if any of the expected audiences match the JWT's audience claim
     if (tokenAudiences != null && tokenAudiences.stream().anyMatch(audiences::contains)) {
