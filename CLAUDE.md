@@ -8,6 +8,19 @@ The Token Validation Service is a dedicated microservice that validates JWTs (JS
 
 **Role**: Security microservice that decouples authentication from business logic, allowing backend services to trust pre-validated requests.
 
+## Repository Scope
+
+**Boundary**: This repository only.
+
+**Allowed**:
+- Read `../service-common/` and `../orchestration/docs/`
+- All operations within this repository
+
+**Forbidden**:
+- Writing outside this repository
+
+Cross-service changes: coordinate through orchestration or service-common.
+
 ## Architecture Principles
 
 - **Single Responsibility**: Validates JWTs and returns 200 OK or 401 Unauthorized - nothing more
