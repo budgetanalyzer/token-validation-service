@@ -1,5 +1,7 @@
 # Token Validation Service
 
+[![Build](https://github.com/budgetanalyzer/token-validation-service/actions/workflows/build.yml/badge.svg)](https://github.com/budgetanalyzer/token-validation-service/actions/workflows/build.yml)
+
 JWT validation service for NGINX `auth_request` directive.
 
 ## Overview
