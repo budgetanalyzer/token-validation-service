@@ -1,5 +1,29 @@
 # Token Validation Service
 
+## Tree Position
+
+**Archetype**: service
+**Scope**: budgetanalyzer ecosystem
+**Role**: Validates JWTs for NGINX auth_request; security gateway for backend services
+
+### Relationships
+- **Consumes**: service-common (patterns)
+- **Coordinated by**: orchestration
+- **Peers with**: Discover via `ls /workspace/*-service`
+- **Observed by**: architecture-conversations
+
+### Permissions
+- **Read**: `../service-common/`, `../orchestration/docs/`
+- **Write**: This repository only
+
+### Discovery
+```bash
+# My peers
+ls -d /workspace/*-service
+# My platform
+ls ../service-common/
+```
+
 ## Project Overview
 
 The Token Validation Service is a dedicated microservice that validates JWTs (JSON Web Tokens) for the Budget Analyzer application. It implements the authentication layer for NGINX's `auth_request` directive, acting as a security gateway between the NGINX reverse proxy and backend microservices.
@@ -7,19 +31,6 @@ The Token Validation Service is a dedicated microservice that validates JWTs (JS
 **Purpose**: Provide fast, reliable JWT validation to enable NGINX to authenticate requests before proxying them to backend services.
 
 **Role**: Security microservice that decouples authentication from business logic, allowing backend services to trust pre-validated requests.
-
-## Repository Scope
-
-**Boundary**: This repository only.
-
-**Allowed**:
-- Read `../service-common/` and `../orchestration/docs/`
-- All operations within this repository
-
-**Forbidden**:
-- Writing outside this repository
-
-Cross-service changes: coordinate through orchestration or service-common.
 
 ## Architecture Principles
 
@@ -468,3 +479,7 @@ Claude's training data may default to an outdated year. When using WebSearch for
 1. Check `<env>Today's date</env>` for the actual current year
 2. Include that year in searches (e.g., "Spring Boot best practices 2025" not 2024)
 3. This ensures results reflect current standards, not outdated patterns
+
+## Conversation Capture
+
+When the user asks to save this conversation, write it to `/workspace/architecture-conversations/conversations/` following the format in INDEX.md.
