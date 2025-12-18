@@ -434,12 +434,12 @@ lsof -i :8088  # or: ss -tlnp | grep 8088
 
 This service is part of the Budget Analyzer microservices architecture:
 
-**Main Repository**: https://github.com/budgetanalyzer/token-validation-service
+**Main Repository**: https://github.com/budgetanalyzerllc/token-validation-service
 
 **Related Repositories**:
-- **orchestration**: https://github.com/budgetanalyzer/orchestration (Docker Compose, NGINX config)
-- **service-common**: https://github.com/budgetanalyzer/service-common (Shared build configuration)
-- **session-gateway**: https://github.com/budgetanalyzer/session-gateway (Session management)
+- **orchestration**: https://github.com/budgetanalyzerllc/orchestration (Docker Compose, NGINX config)
+- **service-common**: https://github.com/budgetanalyzerllc/service-common (Shared build configuration)
+- **session-gateway**: https://github.com/budgetanalyzerllc/session-gateway (Session management)
 
 **Development Setup**: All repositories should be cloned side-by-side in `/workspace/` for cross-repo documentation links to work.
 
@@ -450,6 +450,17 @@ This service is part of the Budget Analyzer microservices architecture:
 2. If prerequisites are NOT satisfied, STOP immediately and inform the user
 3. Do NOT attempt to hack around missing prerequisites - this leads to broken implementations that must be deleted
 4. Complete prerequisites first, then return to the original task
+
+### Execution Bias
+
+When a task is clear and you have the tools to complete it, **do it** rather than describing what needs to be done.
+
+- Bad: "To verify this works, you'll need to run the build for each service..."
+- Good: "Let me run the builds and verify." [runs builds]
+
+The user can always ask for explanation afterward. But they can't un-waste time spent reading instructions for tasks you could have just done.
+
+**Exception — git operations**: Never run git commands (commit, push, checkout, reset, etc.) without explicit user request. The user controls git workflow entirely. You may suggest what to commit, but don't do it.
 
 ### Critical Rules
 
