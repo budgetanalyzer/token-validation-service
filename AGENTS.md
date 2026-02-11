@@ -432,7 +432,7 @@ lsof -i :8088  # or: ss -tlnp | grep 8088
 2. **Treat checkstyle warnings as errors** - Fix all warnings before committing
 3. **Follow naming conventions** - Controller → api/, Config → config/, Models → model/
 4. **Test with real tokens** - Use Auth0 test tokens for integration testing
-5. **Keep docs updated** - Update README.md and CLAUDE.md when adding features
+5. **Keep docs updated** - Update README.md and AGENTS.md when adding features
 
 ### Testing
 1. **Unit tests** - Test validators and config in isolation
