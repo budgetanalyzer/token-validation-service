@@ -152,7 +152,7 @@ grep '\${' src/main/resources/application.yml
 
 | Variable | Description | Default | Where Used |
 |----------|-------------|---------|------------|
-| `AUTH0_ISSUER_URI` | Auth0 tenant issuer URI | `https://dev-gcz1r8453xzz0317.us.auth0.com/` | JWT issuer validation |
+| `AUTH0_ISSUER_URI` | Auth0 tenant issuer URI | `https://placeholder.auth0.com/` | JWT issuer validation |
 | `AUTH0_AUDIENCE` | Expected audience claim (API identifier) | `https://api.budgetanalyzer.org` | JWT audience validation |
 | `SERVER_PORT` | Service port | `8088` | Server binding |
 
