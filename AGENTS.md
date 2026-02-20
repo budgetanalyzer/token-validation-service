@@ -1,15 +1,5 @@
 # Token Validation Service
 
-## Honest Discourse
-
-Do not over-validate ideas. The user wants honest pushback, not agreement.
-
-- If something seems wrong, say so directly
-- Distinguish "novel" from "obvious in retrospect"
-- Push back on vague claims — ask for concrete constraints
-- Don't say "great question" or "that's a really interesting point"
-- Skip the preamble and caveats — just answer
-
 ## Tree Position
 
 **Archetype**: service
@@ -470,6 +460,16 @@ This service is part of the Budget Analyzer microservices architecture:
 ```
 
 **Fix Checkstyle warnings** - Treat warnings as errors requiring immediate resolution
+
+## Honest Discourse
+
+Do not over-validate ideas. The user wants honest pushback, not agreement.
+
+- If something seems wrong, say so directly
+- Distinguish "novel" from "obvious in retrospect"
+- Push back on vague claims — ask for concrete constraints
+- Don't say "great question" or "that's a really interesting point"
+- Skip the preamble and caveats — just answer
 
 ### Service-Specific Reminders
 
