@@ -444,12 +444,12 @@ lsof -i :8088  # or: ss -tlnp | grep 8088
 
 This service is part of the Budget Analyzer microservices architecture:
 
-**Main Repository**: https://github.com/budgetanalyzerllc/token-validation-service
+**Main Repository**: https://github.com/budgetanalyzer/token-validation-service
 
 **Related Repositories**:
-- **orchestration**: https://github.com/budgetanalyzerllc/orchestration (Docker Compose, NGINX config)
-- **service-common**: https://github.com/budgetanalyzerllc/service-common (Shared build configuration)
-- **session-gateway**: https://github.com/budgetanalyzerllc/session-gateway (Session management)
+- **orchestration**: https://github.com/budgetanalyzer/orchestration (Docker Compose, NGINX config)
+- **service-common**: https://github.com/budgetanalyzer/service-common (Shared build configuration)
+- **session-gateway**: https://github.com/budgetanalyzer/session-gateway (Session management)
 
 **Development Setup**: All repositories should be cloned side-by-side in `/workspace/` for cross-repo documentation links to work.
 
