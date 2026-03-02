@@ -142,7 +142,7 @@ grep '\${' src/main/resources/application.yml
 
 | Variable | Description | Default | Where Used |
 |----------|-------------|---------|------------|
-| `AUTH0_ISSUER_URI` | Auth0 tenant issuer URI | `https://dev-gcz1r8453xzz0317.us.auth0.com/` | JWT issuer validation |
+| `AUTH0_ISSUER_URI` | Auth0 tenant issuer URI | `https://placeholder.auth0.com/` | JWT issuer validation |
 | `AUTH0_AUDIENCE` | Expected audience claim (API identifier) | `https://api.budgetanalyzer.org` | JWT audience validation |
 | `SERVER_PORT` | Service port | `8088` | Server binding |
 
@@ -422,7 +422,7 @@ lsof -i :8088  # or: ss -tlnp | grep 8088
 2. **Treat checkstyle warnings as errors** - Fix all warnings before committing
 3. **Follow naming conventions** - Controller → api/, Config → config/, Models → model/
 4. **Test with real tokens** - Use Auth0 test tokens for integration testing
-5. **Keep docs updated** - Update README.md and CLAUDE.md when adding features
+5. **Keep docs updated** - Update README.md and AGENTS.md when adding features
 
 ### Testing
 1. **Unit tests** - Test validators and config in isolation
@@ -472,16 +472,12 @@ When working on this service:
 - The service should **never store state** - purely stateless validation
 - When adding features, ensure they don't add latency to the critical validation path
 
-## Web Search Protocol
+## Honest Discourse
 
-BEFORE any WebSearch tool call:
-1. Read `Today's date` from `<env>` block
-2. Extract the current year
-3. Use current year in queries about "latest", "best", "current" topics
-4. NEVER use previous years unless explicitly searching historical content
+Do not over-validate ideas. The user wants honest pushback, not agreement.
 
-FAILURE MODE: Training data defaults to 2023/2024. Override with `<env>` year.
-
-## Conversation Capture
-
-When the user asks to save this conversation, write it to `/workspace/architecture-conversations/conversations/` following the format in INDEX.md.
+- If something seems wrong, say so directly
+- Distinguish "novel" from "obvious in retrospect"
+- Push back on vague claims — ask for concrete constraints
+- Don't say "great question" or "that's a really interesting point"
+- Skip the preamble and caveats — just answer

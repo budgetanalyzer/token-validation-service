@@ -28,7 +28,7 @@ spring:
           # Auth0 issuer URI (abstracted through NGINX /auth/.well-known/openid-configuration)
           # In production, this will point to NGINX gateway
           # In development, can point directly to Auth0 or through NGINX
-          issuer-uri: ${AUTH0_ISSUER_URI:https://dev-gcz1r8453xzz0317.us.auth0.com/}
+          issuer-uri: ${AUTH0_ISSUER_URI:https://placeholder.auth0.com/}
 
 # Custom configuration for audience validation
 auth0:

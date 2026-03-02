@@ -2,7 +2,7 @@
 
 > "Archetype: service. Role: Validates JWTs for NGINX auth_request; security gateway for backend services."
 >
-> — [CLAUDE.md](CLAUDE.md#tree-position)
+> — [AGENTS.md](AGENTS.md#tree-position)
 
 [![Build](https://github.com/budgetanalyzer/token-validation-service/actions/workflows/build.yml/badge.svg)](https://github.com/budgetanalyzer/token-validation-service/actions/workflows/build.yml)
 
