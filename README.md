@@ -117,15 +117,6 @@ curl http://localhost:8088/auth/validate
 # Expected: 401 Unauthorized
 ```
 
-## Implementation Status
-
-### Phase 1: Infrastructure Setup ✅
-- [x] Basic Spring Boot setup
-- [x] OAuth2 Resource Server configuration
-- [x] JWT decoder with session-gateway JWKS
-- [x] `/auth/validate` endpoint
-- [x] Health check endpoint
-
 ## Security Features
 
 ### JWT Validation
