@@ -447,7 +447,7 @@ This service is part of the Budget Analyzer microservices architecture:
 
 **Development Setup**: All repositories should be cloned side-by-side in `/workspace/` for cross-repo documentation links to work.
 
-## Notes for Claude Code
+## NOTES FOR AI AGENTS
 
 **CRITICAL - Prerequisites First**: Before implementing any plan or feature:
 1. Check for prerequisites in documentation (e.g., "Prerequisites: service-common Enhancement")
