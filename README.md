@@ -15,10 +15,15 @@ The Token Validation Service provides a lightweight, dedicated endpoint for vali
 ## Architecture
 
 ```
+Browser
+  ├─ Authenticates via session-gateway (Auth0 OAuth2 login)
+  ├─ Receives internal JWT minted by session-gateway
+  ├─ Sends request with Authorization: Bearer <internal-jwt>
+  ↓
 NGINX Gateway
-  ├─ Receives request with Authorization: Bearer <jwt>
   ├─ Calls /auth/validate (auth_request)
-  │  ├─ 200 OK → Forward to backend
+  │  ├─ Token Validation Service verifies RS256 signature (session-gateway JWKS)
+  │  ├─ 200 OK → Forward to backend with X-JWT-User-Id header
   │  └─ 401 Unauthorized → Reject request
   └─ Proxies to backend service
 ```
@@ -27,7 +32,7 @@ NGINX Gateway
 
 - **Spring Boot**: Lightweight web application
 - **Spring Security OAuth2 Resource Server**: JWT validation
-- **Auth0**: Identity provider (public keys for signature validation)
+- **session-gateway**: Internal JWT issuer (JWKS for RS256 verification)
 
 ## Configuration
 
@@ -35,21 +40,18 @@ NGINX Gateway
 
 | Variable | Description | Default |
 |----------|-------------|---------|
-| `AUTH0_ISSUER_URI` | Auth0 tenant issuer URI | `https://placeholder.auth0.com/` |
-| `AUTH0_AUDIENCE` | Expected audience claim (API identifier) | `budget-analyzer-api` |
+| `JWT_JWKS_URI` | JWKS endpoint for verifying internal JWTs | `http://session-gateway:8081/.well-known/jwks.json` |
 
 ### Ports
 
-- **8090**: Token Validation Service (internal, called by NGINX)
+- **8088**: Token Validation Service (internal, called by NGINX)
 
 ## JWT Validation
 
-The service validates the following JWT claims:
+The service validates internal JWTs minted by session-gateway:
 
-1. **Signature**: Uses Auth0 public keys (JWKS)
+1. **Signature**: Verifies RS256 signature using session-gateway's JWKS endpoint
 2. **Expiration**: Ensures token is not expired
-3. **Issuer**: Validates `iss` claim matches Auth0 tenant
-4. **Audience**: Validates `aud` claim matches API identifier
 
 ## API Endpoints
 
@@ -76,7 +78,7 @@ location /api/ {
 
 location = /internal/auth/validate {
     internal;
-    proxy_pass http://token-validation-service:8090/auth/validate;
+    proxy_pass http://token-validation-service:8088/auth/validate;
     proxy_pass_request_body off;
     proxy_set_header Authorization $http_authorization;
 }
@@ -87,7 +89,7 @@ location = /internal/auth/validate {
 ### Prerequisites
 
 - Java 24
-- Auth0 tenant configured (or use placeholders)
+- session-gateway accessible (or override `JWT_JWKS_URI`)
 
 ### Start the Service
 
@@ -98,7 +100,7 @@ location = /internal/auth/validate {
 ### Health Check
 
 ```bash
-curl http://localhost:8090/actuator/health
+curl http://localhost:8088/actuator/health
 ```
 
 ### Test JWT Validation
@@ -110,28 +112,16 @@ curl -H "Authorization: Bearer <valid-jwt>" http://localhost:8090/auth/validate
 # Expected: 200 OK
 
 # Without JWT
-curl http://localhost:8090/auth/validate
+curl http://localhost:8088/auth/validate
 
 # Expected: 401 Unauthorized
 ```
 
-## Implementation Status
-
-### Phase 1: Infrastructure Setup ✅
-- [x] Basic Spring Boot setup
-- [x] OAuth2 Resource Server configuration
-- [x] JWT decoder with Auth0 issuer
-- [x] `/auth/validate` endpoint
-- [x] Audience validation
-- [x] Health check endpoint
-
 ## Security Features
 
 ### JWT Validation
-- **Signature Verification**: Uses Auth0 JWKS endpoint for public keys
+- **Signature Verification**: Verifies RS256 signature using session-gateway's JWKS endpoint
 - **Expiration Check**: Rejects expired tokens
-- **Issuer Validation**: Ensures token from trusted Auth0 tenant
-- **Audience Validation**: Ensures token intended for this API
 
 ### Performance
 - Lightweight endpoint optimized for NGINX auth_request

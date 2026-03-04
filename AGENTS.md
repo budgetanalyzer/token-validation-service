@@ -37,7 +37,7 @@ The Token Validation Service is a dedicated microservice that validates JWTs (JS
 - **Single Responsibility**: Validates JWTs and returns 200 OK or 401 Unauthorized - nothing more
 - **Stateless**: No session storage, no state management - pure validation service
 - **Fast Validation**: Optimized for NGINX auth_request with minimal overhead
-- **Security-First**: OAuth2 Resource Server pattern with Auth0 integration
+- **Security-First**: OAuth2 Resource Server pattern with internal JWT validation via session-gateway JWKS
 - **Decoupled Authentication**: Backend services receive only validated requests
 
 ## Spring Boot Patterns
@@ -58,17 +58,19 @@ The Token Validation Service is a dedicated microservice that validates JWTs (JS
 ## Authentication Flow
 
 ```
-Client Request
+Browser
     ↓
-NGINX Gateway (receives Authorization: Bearer <jwt>)
+session-gateway (handles Auth0 OAuth2 login, mints internal JWT)
+    ↓
+Browser sends request with Authorization: Bearer <internal-jwt>
+    ↓
+NGINX Gateway
     ↓
 NGINX calls /auth/validate (internal auth_request)
     ↓
 Token Validation Service
-    ├─ Validates JWT signature (Auth0 JWKS)
-    ├─ Validates expiration
-    ├─ Validates issuer
-    └─ Validates audience
+    ├─ Validates JWT signature (session-gateway JWKS)
+    └─ Validates expiration
     ↓
 200 OK → NGINX proxies to backend service
 401 Unauthorized → NGINX rejects request
@@ -157,8 +159,7 @@ grep '\${' src/main/resources/application.yml
 
 | Variable | Description | Default | Where Used |
 |----------|-------------|---------|------------|
-| `AUTH0_ISSUER_URI` | Auth0 tenant issuer URI | `https://placeholder.auth0.com/` | JWT issuer validation |
-| `AUTH0_AUDIENCE` | Expected audience claim (API identifier) | `https://api.budgetanalyzer.org` | JWT audience validation |
+| `JWT_JWKS_URI` | JWKS endpoint for verifying internal JWTs | `http://session-gateway:8081/.well-known/jwks.json` | JWT signature verification |
 | `SERVER_PORT` | Service port | `8088` | Server binding |
 
 **Configuration Files**:
@@ -168,19 +169,14 @@ grep '\${' src/main/resources/application.yml
 
 ## JWT Validation Details
 
-The service validates four key JWT aspects:
+The service validates internal JWTs minted by session-gateway:
 
-1. **Signature**: Verifies JWT signature using Auth0 public keys (JWKS endpoint)
+1. **Signature**: Verifies RS256 signature using session-gateway's JWKS endpoint
 2. **Expiration**: Ensures token is not expired (exp claim)
-3. **Issuer**: Validates iss claim matches Auth0 tenant
-4. **Audience**: Validates aud claim matches API identifier
+
+No issuer or audience validation is performed — these are trusted internal tokens.
 
 **Implementation**: [src/main/java/org/budgetanalyzer/tokenvalidation/config/SecurityConfig.java](src/main/java/org/budgetanalyzer/tokenvalidation/config/SecurityConfig.java)
-
-**Custom Validators**:
-- [AudienceValidator.java](src/main/java/org/budgetanalyzer/tokenvalidation/config/AudienceValidator.java) - Validates audience claim
-- Supports both `JWT` and `at+jwt` token types (OAuth 2.0 RFC 9068)
-- Supports `RS256` and `PS256` algorithms (Auth0 standards)
 
 ## Code Structure
 
@@ -203,14 +199,12 @@ src/main/java/org/budgetanalyzer/tokenvalidation/
 ├── api/
 │   └── AuthValidationController.java       # /auth/validate endpoint
 └── config/
-    ├── SecurityConfig.java                 # OAuth2 Resource Server setup
-    └── AudienceValidator.java              # Custom audience validation
+    └── SecurityConfig.java                 # OAuth2 Resource Server setup
 ```
 
 **Key Classes**:
 - **AuthValidationController**: Main validation endpoint
-- **SecurityConfig**: JWT decoder configuration, security filter chain
-- **AudienceValidator**: Validates audience claim against expected value
+- **SecurityConfig**: JWT decoder configuration (session-gateway JWKS), security filter chain
 
 **Shared Components from service-common**:
 - **HttpLoggingFilter**: Logs incoming validation requests for debugging
@@ -221,7 +215,7 @@ src/main/java/org/budgetanalyzer/tokenvalidation/
 ### Prerequisites
 - Java 24+ (JDK installed)
 - Docker (for running with orchestration)
-- Auth0 tenant (or use default placeholders)
+- session-gateway running and reachable (or override `JWT_JWKS_URI`)
 
 ### Build and Test
 
@@ -256,7 +250,7 @@ curl http://localhost:8088/actuator/health
 
 **Test JWT validation:**
 ```bash
-# With valid JWT (requires real Auth0 token)
+# With valid JWT (requires internal JWT from session-gateway)
 curl -H "Authorization: Bearer <valid-jwt>" http://localhost:8088/auth/validate
 
 # Expected: 200 OK with X-JWT-User-Id header
@@ -300,8 +294,7 @@ token-validation-service:
   ports:
     - "8088:8088"
   environment:
-    - AUTH0_ISSUER_URI=${AUTH0_ISSUER_URI}
-    - AUTH0_AUDIENCE=${AUTH0_AUDIENCE}
+    - JWT_JWKS_URI=${JWT_JWKS_URI:-http://session-gateway:8081/.well-known/jwks.json}
 ```
 
 **Discovery**:
@@ -383,25 +376,22 @@ docker compose logs -f token-validation-service
 
 **Diagnosis**:
 ```bash
-# Check issuer URI configuration
-grep issuer-uri src/main/resources/application.yml
-
-# Check Auth0 audience
-grep audience src/main/resources/application.yml
+# Check JWKS URI configuration
+grep jwk-set-uri src/main/resources/application.yml
 
 # View detailed validation logs
-# (logs will show exact issuer/audience mismatch)
+# (logs will show signature verification failures)
 ```
 
-**Issue**: Cannot reach Auth0 JWKS endpoint
+**Issue**: Cannot reach session-gateway JWKS endpoint
 
 **Diagnosis**:
 ```bash
 # Test connectivity to JWKS endpoint
-curl https://<your-auth0-domain>/.well-known/jwks.json
+curl http://session-gateway:8081/.well-known/jwks.json
 
-# Check OIDC configuration
-curl https://<your-auth0-domain>/.well-known/openid-configuration
+# Or if running locally with a custom URI
+curl $JWT_JWKS_URI
 ```
 
 **Issue**: Service not responding
@@ -422,13 +412,12 @@ lsof -i :8088  # or: ss -tlnp | grep 8088
 
 ### Security
 1. **Never log full JWTs** - Only log token metadata (subject, expiration, etc.)
-2. **Use environment variables** - Never hardcode Auth0 credentials
-3. **Validate audience** - Always validate the audience claim to prevent token misuse
-4. **Trust Auth0 signatures** - Let Auth0 JWKS handle key rotation automatically
+2. **Use environment variables** - Never hardcode credentials or JWKS URIs
+3. **Trust session-gateway signatures** - Let session-gateway JWKS handle key rotation automatically
 
 ### Performance
 1. **Keep it lightweight** - No business logic in this service
-2. **Cache JWKS keys** - Spring Security caches Auth0 public keys automatically
+2. **Cache JWKS keys** - Spring Security caches session-gateway public keys automatically
 3. **Disable request body** - NGINX should use `proxy_pass_request_body off`
 4. **Monitor latency** - JWT validation should be sub-100ms
 
@@ -436,7 +425,7 @@ lsof -i :8088  # or: ss -tlnp | grep 8088
 1. **Follow build sequence** - Always run `./gradlew clean spotlessApply` then `./gradlew clean build`
 2. **Treat checkstyle warnings as errors** - Fix all warnings before committing
 3. **Follow naming conventions** - Controller → api/, Config → config/, Models → model/
-4. **Test with real tokens** - Use Auth0 test tokens for integration testing
+4. **Test with real tokens** - Use internal JWTs from session-gateway for integration testing
 5. **Keep docs updated** - Update README.md and AGENTS.md when adding features
 
 ### Testing
@@ -458,7 +447,7 @@ This service is part of the Budget Analyzer microservices architecture:
 
 **Development Setup**: All repositories should be cloned side-by-side in `/workspace/` for cross-repo documentation links to work.
 
-## Notes for Claude Code
+## NOTES FOR AI AGENTS
 
 **CRITICAL - Prerequisites First**: Before implementing any plan or feature:
 1. Check for prerequisites in documentation (e.g., "Prerequisites: service-common Enhancement")
@@ -482,7 +471,7 @@ When working on this service:
 - This is a **security-critical service** - be extra careful with JWT validation logic
 - Keep the service **lightweight and fast** - it's called on every authenticated request
 - Follow the **OAuth2 Resource Server pattern** - don't reinvent JWT validation
-- **Test with real Auth0 tokens** when making changes to validation logic
+- **Test with internal JWTs minted by session-gateway** when making changes to validation logic
 - All configuration should use **environment variables** for production deployability
 - The service should **never store state** - purely stateless validation
 - When adding features, ensure they don't add latency to the critical validation path

@@ -16,8 +16,8 @@ import org.springframework.web.bind.annotation.RestController;
  *
  * <p>NGINX will call this endpoint to validate JWTs before proxying requests to backend services.
  *
- * <p>Response codes: - 200 OK: JWT is valid - 401 Unauthorized: JWT is missing, expired, invalid
- * signature, or invalid audience
+ * <p>Response codes: - 200 OK: JWT is valid - 401 Unauthorized: JWT is missing, expired, or invalid
+ * signature
  */
 @RestController
 @RequestMapping("/auth")
@@ -52,10 +52,8 @@ public class AuthValidationController {
     logger.debug("Authorization header present: {}", authHeader != null);
 
     // If we reach here, Spring Security has already validated:
-    // 1. JWT signature (using Auth0 public keys)
+    // 1. JWT signature (RS256 via session-gateway JWKS)
     // 2. JWT expiration
-    // 3. Issuer claim
-    // 4. Audience claim
 
     // Extract user ID from JWT (sub claim) and return in response header
     if (authentication.getPrincipal() instanceof Jwt jwt) {
