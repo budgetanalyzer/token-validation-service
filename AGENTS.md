@@ -40,6 +40,10 @@ The Token Validation Service is a dedicated microservice that validates JWTs (JS
 - **Security-First**: OAuth2 Resource Server pattern with internal JWT validation via session-gateway JWKS
 - **Decoupled Authentication**: Backend services receive only validated requests
 
+## Coding Standards
+
+**Before writing or modifying any Java code, read [code-quality-standards.md](../service-common/docs/code-quality-standards.md).** Do not skip this step. The most common violations: missing `var`, wildcard imports, abbreviated variable names, Javadoc without trailing periods.
+
 ## Spring Boot Patterns
 
 **This service follows standard Budget Analyzer Spring Boot conventions.**
