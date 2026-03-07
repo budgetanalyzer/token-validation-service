@@ -24,6 +24,10 @@ ls -d /workspace/*-service
 ls ../service-common/
 ```
 
+## Code Exploration
+
+NEVER use Agent/subagent tools for code exploration. Use Grep, Glob, and Read directly.
+
 ## Project Overview
 
 The Token Validation Service is a dedicated microservice that validates JWTs (JSON Web Tokens) for the Budget Analyzer application. It implements the authentication layer for NGINX's `auth_request` directive, acting as a security gateway between the NGINX reverse proxy and backend microservices.
